@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { MoviesController } from './movies/movies.controller';
-import { MoviesService } from './movies/movies.service';
+import { MoviesModule } from './movies/movies.module';
+import { AppController } from './app.controller';
 
 /**
  * NestJS Decorator 함수
@@ -9,8 +9,8 @@ import { MoviesService } from './movies/movies.service';
  * 현재 클래스인 AppModule는 비어있으나 실질적인 코드는 @Module에 있다.
  */
 @Module({
-  imports: [],
-  controllers: [MoviesController],
-  providers: [MoviesService],
+  imports: [MoviesModule],
+  controllers: [AppController],
+  providers: [],
 })
 export class AppModule {}
