@@ -261,7 +261,7 @@ POST방식에서 Form 데이터 혹은 JSON으로 넘긴 데이터를 추출하�
 `/src/도메인명/` 경로로   
 **`[도메인명].service.ts`** | **`[도메인명].service.spec.ts`**  파일이 생성된다.
 
-# *IOC - @Injectable() & Constructor*
+# *IOC & DI (@Injectable() / Constructor)*
 
 - ## `@Injectable`
   ```ts
@@ -271,12 +271,13 @@ POST방식에서 Form 데이터 혹은 JSON으로 넘긴 데이터를 추출하�
   export class MoviesService {}
   ```
   주입할 Provider 즉, Service 클래스의 클래스레벨에 @Injectable() 데코레이터를 선언하면
-  Nest IOC 컨테이너가 해당 프로바이더를 관리할 수 있게 된다.    
+  Nest IOC 컨테이너가 해당 프로바이더를 관리할 수 있게 된다.   
 
   이는 Spring에서의 Bean과 같은 원리이다.   
 
-    주입 받을 곳(Service라면 Controller)에는 주입 받을 프로바이더의 토큰 객체를 생성자 주입 방식으로 구현한다.   
-    (만약 모듈에 토큰(bean이름)과, 객체 둘을 등록하면 둘을 연결시켜준다)
+  주입 받을 곳(Service라면 Controller)에는 주입 받을 프로바이더의 토큰 객체를 생성자 주입 방식으로 구현한다.   
+  이것을 `DI - Dependency Injection` 이라고 부른다
+  (만약 모듈에 토큰(bean이름)과, 객체 둘을 등록하면 둘을 연결시켜준다)
 
 - ## `app.module.ts`
   ```ts
@@ -305,7 +306,7 @@ POST방식에서 Form 데이터 혹은 JSON으로 넘긴 데이터를 추출하�
     constructor(private readonly moviesService: MoviesService) {}
   }
   ```
-  이때, @Inject()는 생략이 가능하다.
+  이때, 타입스크립트를 사용하여 타입을 지정하면, 해당 타입에 대한 빈을 찾게되므로 @Inject()는 생략이 가능하다.
 
 # *Validation - DTO & Pipe*
 유효성 검사를 위한 미들웨어를 설정한다.    
@@ -469,3 +470,29 @@ PartialType은 create와 update에 대한 input validation types 즉, DTO가 동
   import { CreateMovieDTO } from './create-movie.dto';
   export class UpdateMovieDTO extends PartialType(CreateMovieDTO) {}
   ```
+
+# Modules imports
+상위모듈에서 하위모듈을 import한다.
+
+# express, Fastify
+Nest는 Express위에서 동작하므로 Express의 request, response 객체 사용이 가능하다.
+
+```ts
+import { Controller, Req, Res } from '@nestjs/common';
+
+@Controller() 
+export class ExampleController{
+  
+  @Get()
+  getAll(@Req() req, @Res res) {
+    res.json();
+  }
+}
+```
+그러나 Express 객체를 사용을 권장하지 않는다.
+Nest는 Express프레임 워크를 사용하도록 만들 수 있고, 또한 Fastify같은 라이브러리와 호환이 된다.   
+Fastify는 Express와 유사하게 동작하면서 Express보다 2배정도 빠르다.
+Nest는 Express와 Fastify 두 프레임워크 위에서 동시에 돌아가기 때문에 Express의 req, res객체를 사용하지 않는것이 좋다.    
+성능 향상을 위해서는 보통 Express에서 Fastify 전환하기 때문이다.   
+
+
