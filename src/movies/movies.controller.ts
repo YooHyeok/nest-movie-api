@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { Movie } from './entities/movie.entity';
+import { CreateMovieDTO } from "./dto/create-movie.dto";
 
 @Controller('movies')
 export class MoviesController {
@@ -24,20 +25,19 @@ export class MoviesController {
     return `This will return one movie with the id: ${data}`;
   }
   @Get('/:id')
-  getOne(@Param('id') movieId: string): Movie {
+  getOne(@Param('id') movieId: number): Movie {
     return this.moviesService.getOne(movieId);
   }
-  @Post()
-  create(@Body() movieData: object) {
-    console.log(movieData);
+  @Post() // Post 성공시 201코드 반환
+  create(@Body() movieData: CreateMovieDTO) {
     return this.moviesService.create(movieData);
   }
   @Delete('/:data')
-  remove(@Param('id') movieId: string) {
+  remove(@Param('id') movieId: number) {
     return this.moviesService.deleteOne(movieId);
   }
   @Patch(`/:id`)
-  patch(@Param('id') movieId: string, @Body() updateData: object) {
+  patch(@Param('id') movieId: number, @Body() updateData: object) {
     console.log(updateData);
     return this.moviesService.update(movieId, updateData);
   }
