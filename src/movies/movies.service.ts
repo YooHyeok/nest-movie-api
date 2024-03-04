@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Movie } from './entities/movie.entity';
 import { CreateMovieDTO } from "./dto/create-movie.dto";
+import { UpdateMovieDTO } from './dto/update-movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -29,7 +30,7 @@ export class MoviesService {
       ...movieData,
     });
   }
-  update(id: number, updateData) {
+  update(id: number, updateData: UpdateMovieDTO) {
     console.log(id);
     console.log(updateData);
     const movie = this.getOne(id); // 조회되는지 여부 파악 안되면 NotFoundException에러 발생됨
