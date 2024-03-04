@@ -421,3 +421,51 @@ POST방식에서 Form 데이터 혹은 JSON으로 넘긴 데이터를 추출하�
     - 예를들어 query parameter혹은 query string으로 전달된 데이터는 String 이다.   
       만약 숫자 데이터를 넘겼을 경우 컨트롤러에서 request 파라미터 타입을 number로 지정하면 자동으로 타입이 변환된다.
 
+# *PartialType*
+PartialType Decorator 함수는 입력 유형의 모든 속성이 `선택` 사항으로 설정된 유형(클래스)를 반환한다.    
+예를들어 create에는 모든 필드가 필요하겠으나, update에는 모든 필드를 선택사항으로 만들어야 할 것이다.   
+PartialType은 create와 update에 대한 input validation types 즉, DTO가 동일할 경우 `선택` 사항에 대한 작업을 보다 쉽게 도와준다.
+
+- mapped-types
+    ```bash
+    npm i @nestjs/mapped-types
+    ```
+    타입을 변환시키고 사용할 수 있게 하는 패키지이다.
+- create-movie.dto.ts
+    ```ts
+    import { IsNumber, IsOptional, IsString } from 'class-validator';
+
+    export class CreateMovieDTO {
+    @IsString()
+    readonly title: string;
+    @IsNumber()
+    readonly year: number;
+    @IsOptional()
+    @IsString({ each: true })
+    readonly genres: string[];
+    }
+    ```
+
+- update-movie.dto.ts
+  ```ts
+  import { IsNumber, IsOptional, IsString } from 'class-validator';
+
+  export class CreateMovieDTO {
+  @IsString()
+  readonly title?: string;
+  @IsNumber()
+  readonly year?: number;
+  @IsOptional()
+  @IsString({ each: true }) 
+  readonly genres?: string[];
+  }
+  ```
+
+  위와같이 create와 update DTO의 필드가 동일하면서 update DTO의 모든 필드가 `선택`사항이라면 아래와 같이 PartialType()을 적용한다.
+
+- update-movie.dto.ts (PartialType 적용)
+  ```ts
+  import { PartialType } from '@nestjs/mapped-types';
+  import { CreateMovieDTO } from './create-movie.dto';
+  export class UpdateMovieDTO extends PartialType(CreateMovieDTO) {}
+  ```
