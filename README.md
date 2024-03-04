@@ -306,3 +306,118 @@ POST방식에서 Form 데이터 혹은 JSON으로 넘긴 데이터를 추출하�
   }
   ```
   이때, @Inject()는 생략이 가능하다.
+
+# *Validation - DTO & Pipe*
+유효성 검사를 위한 미들웨어를 설정한다.    
+자바의 @Valid 혹은 @Validated와 유사하다.   
+
+ - ### 클래스 유효성 검사를 위한 NPM 모듈
+    ```bash
+    npm i class-validator class-transformer
+    ```
+ - ### main.ts
+    ```ts
+    import { NestFactory } from '@nestjs/core';
+    import { AppModule } from './app.module';
+    import { ValidationPipe } from "@nestjs/common"; // 코드 추가
+    
+    async function bootstrap() {
+      const app = await NestFactory.create(AppModule);
+      app.useGlobalPipes(new ValidationPipe()); // 코드 추가
+      await app.listen(3000);
+    }
+    bootstrap();
+    ```
+    위와 같이 main.ts파일에 middleware 설정과 같이 ValidationPipe 객체를 전역으로 추가한다.
+
+ - ### DTO
+   ```ts
+   import { IsNumber, IsString } from 'class-validator';
+  
+   export class CreateMovieDTO {
+  
+     @IsString()
+     readonly title: string;
+     @IsNumber()
+     readonly year: number;
+     @IsString({ each: true }) /* string배열의 모든 요소를 하나씩 검사함 */
+     readonly genres: string[];
+   }
+   ```
+   DTO 클래스에 class-validator의 타입별 유효성 데코레이터를 선언한다.
+
+ - ### Validate request Test
+    ```json
+    {
+      "hacked" : "by me" 
+   }
+    ```
+
+
+ - ### 404 bad request
+    ```json
+    {
+        "message": [
+            "title must be a string",
+            "year must be a number conforming to the specified constraints",
+            "each value in genres must be a string"
+        ],
+        "error": "Bad Request",
+        "statusCode": 400
+    }
+    ```
+   타입이 일치하지 않는(넘겨받지 못할경우) 400 상태코드와 함께 에러가 발생한다. 
+- ### ValidationPipe Options
+    ```ts
+   app.useGlobalPipes(
+   new ValidationPipe({
+         whitelist: true, /* Validation관련 decorator가 존재하지 않는 object라면 제거된 후 검증한다. */
+         forbidNonWhitelisted: true, /* whitelist에 존재하지 않다면 HttpException을 발생시켜 request 요청 자체를 차단한다. */
+         transform : true, /* 파라미터를 컨트롤러에 선언한 타입으로 변환한다. */
+       }),
+     );
+     ```
+  위와같이 옵션을 줄수도 있다.<br><br>
+  - `**whitelist**`
+    - Validation관련 decorator가 존재하지 않는 object라면 제거된 후 검증한다.
+    - 예를들어 클라이언트 측에서 전송한 데이터가 다음과 같을 경우
+      ```json
+      {
+        "title": "Tenet",
+        "year": 2020,
+        "genres": ["Action", "Sci-Fi"],
+        "hack": "by me" /* 제거 예정! */
+      }
+      ```
+      데코레이터가 없는 속성("hack")은 제거된다.
+      ```json
+      {
+        "title": "Tenet",
+        "year": 2020,
+        "genres": ["Action", "Sci-Fi"],
+      }
+      ```
+  - `**forbidNonWhitelisted**`
+    - whitelist에 존재하지 않다면 HttpException을 발생시켜 request 요청 자체를 차단한다.
+    - 클라이언트 측에서 전송한 데이터가 다음과 같을 경우
+      ```json
+      {
+      "title": "Tenet",
+      "year": 2020,
+      "genres": ["Action", "Sci-Fi"],
+      "hack": "by me" /* 제거 예정! */
+      }
+      ```
+      response
+      ```json
+      {
+        "statusCode":400,
+        "message": [ "property hack should not exist" ],
+        "error": "Bad Request"
+      }
+      ```
+  - `**transform**`
+    - 파라미터를 컨트롤러에 선언한 타입으로 변환한다.
+    - 예를들어 query parameter혹은 query string으로 전달된 데이터는 String 이다.   
+      만약 숫자 데이터를 넘겼을 경우 컨트롤러에서 request 파라미터 타입을 number로 지정하면 자동으로 타입이 변환된다.
+
