@@ -250,3 +250,59 @@ export class MoviesController {
   }
 }
 ```
+
+# *@Body() - Decorator*
+POST방식에서 Form 데이터 혹은 JSON으로 넘긴 데이터를 추출하는 데코레이터 메소드이다.
+
+# *Service 생성 (Nest-cli)*
+```bash
+> nest g s [도메인명]
+```
+`/src/도메인명/` 경로로   
+**`[도메인명].service.ts`** | **`[도메인명].service.spec.ts`**  파일이 생성된다.
+
+# *IOC - @Injectable() & Constructor*
+
+- ## `@Injectable`
+  ```ts
+  import { Injectable } from '@nestjs/common';
+
+  @Injectable()
+  export class MoviesService {}
+  ```
+  주입할 Provider 즉, Service 클래스의 클래스레벨에 @Injectable() 데코레이터를 선언하면
+  Nest IOC 컨테이너가 해당 프로바이더를 관리할 수 있게 된다.    
+
+  이는 Spring에서의 Bean과 같은 원리이다.   
+
+    주입 받을 곳(Service라면 Controller)에는 주입 받을 프로바이더의 토큰 객체를 생성자 주입 방식으로 구현한다.   
+    (만약 모듈에 토큰(bean이름)과, 객체 둘을 등록하면 둘을 연결시켜준다)
+
+- ## `app.module.ts`
+  ```ts
+  import { Module } from '@nestjs/common';
+  import { MoviesController } from './movies/movies.controller';
+  import { MoviesService } from './movies/movies.service';
+
+  @Module({
+    imports: [],
+    controllers: [MoviesController],
+    providers: [{
+        provide: 'MoviesService', // MoviesService token
+        useClass: MoviesService, // MoviesService 클래스
+      },],
+  })
+  export class AppModule {}
+  ```
+- ## `movies.controller.ts`
+
+  Controller에서 아래와 같이 생성자를 통해 Token객체를 의존성 주입 한다.
+  ```ts
+  import { Controller, Inject } from '@nestjs/common';
+  @Controller('movies')
+  export class MoviesController {
+    // constructor(@Inject('MoviesService') private readonly moviesService: MoviesService) {} //@Inejct 생략 가능
+    constructor(private readonly moviesService: MoviesService) {}
+  }
+  ```
+  이때, @Inject()는 생략이 가능하다.
