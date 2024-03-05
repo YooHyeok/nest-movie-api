@@ -6,12 +6,14 @@ import { AppModule } from './../src/app.module';
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  // beforeEach(async () => { /* 테스트간 독립적으로 적용된다. */
+  beforeAll(async () => { /* 모든 테스트에 대해 적용된다. */
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
     await app.init();
   });
 
@@ -44,7 +46,22 @@ describe('AppController (e2e)', () => {
     it('DELETE', () => {
       return request(app.getHttpServer())
         .delete('/movies')
-        .expect(404); // 데이터가 없다
+        .expect(404); // 파라미터가 없음... = /movies에 매핑되는 DELETE 방식의 매핑함수가 없음
     });
+  });
+
+  describe('/movies:id', () => {
+    it('GET 200', () => {
+      return request(app.getHttpServer())
+        .get('/movies/1')
+        .expect(200) // 위 POST 테스트에서 추가하고 삭제되지않음.
+    });
+    it('GET 404', () => {
+      return request(app.getHttpServer())
+        .get('/movies/2')
+        .expect(404)
+    });
+    it.todo('DELETE');
+    it.todo('PATCH');
   });
 });
