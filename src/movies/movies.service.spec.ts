@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MoviesService } from './movies.service';
-import { describe, it } from 'node:test';
+import { NotFoundException } from '@nestjs/common';
 
 describe('MoviesService', () => {
   let service: MoviesService;
@@ -17,13 +17,36 @@ describe('MoviesService', () => {
   });
 
   /**
-   * individual test의 줄임말
+   * it : individual test의 줄임말
    */
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should be 4', () => {
-    expect(2 + 2).toEqual(5);
+  describe('getAll', () => {
+    it('should return an array', () => {
+      const result = service.getAll();
+      expect(result).toBeInstanceOf(Array); // 배열리턴여부확인
+    });
+  });
+  describe('getOne', () => {
+    it('should return a movie', () => {
+      service.create({
+        title: 'Test Movie',
+        genres: ['test'],
+        year: 2000,
+      });
+      const movie = service.getOne(1);
+      expect(movie).toBeDefined(); // Movie 객체리턴여부확인
+      expect(movie.id).toEqual(1);
+    });
+    it('should throw 404 error', () => {
+      try {
+        service.getOne(1); // 데이터 추가된적이 없으므로.. Not Found Exception
+      } catch (e) {
+        expect(e).toBeInstanceOf(NotFoundException);
+        expect(e.message).toEqual('Movie With ID: 1 not found.');
+      }
+    });
   });
 });
