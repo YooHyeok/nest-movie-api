@@ -471,10 +471,10 @@ PartialType은 create와 update에 대한 input validation types 즉, DTO가 동
   export class UpdateMovieDTO extends PartialType(CreateMovieDTO) {}
   ```
 
-# Modules imports
+# *Modules imports*
 상위모듈에서 하위모듈을 import한다.
 
-# express, Fastify
+# *express, Fastify*
 Nest는 Express위에서 동작하므로 Express의 request, response 객체 사용이 가능하다.
 
 ```ts
@@ -494,5 +494,132 @@ Nest는 Express프레임 워크를 사용하도록 만들 수 있고, 또한 Fas
 Fastify는 Express와 유사하게 동작하면서 Express보다 2배정도 빠르다.
 Nest는 Express와 Fastify 두 프레임워크 위에서 동시에 돌아가기 때문에 Express의 req, res객체를 사용하지 않는것이 좋다.    
 성능 향상을 위해서는 보통 Express에서 Fastify 전환하기 때문이다.   
+
+# *.spec.ts 와 TEST (jest)*
+NEST JS를 설치하면 package.json에 테스팅과 관련된 5가지 정도의 스크립트가 추가된다. 
+```json
+"scripts": {
+    /* 생략 */
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+```
+test, watch, cov, debug, e2e 다섯가지이다.    
+
+## jest    
+  자바스크립트를 아주 쉽게 테스팅하는 NPM 패키지이다.
+  .spec.ts 확장자를 가진 파일들은 테스트를 포함한 파일들이다.   
+  예를들어 movie.service.spec.ts는 movie.service.ts를 테스팅한다.    
+  movies.controller.ts라는 파일을 테스팅하고 싶다면 movies.controller.spec.ts 파일이 있어야 한다.    
+  NEST JS에는 JEST가 .spec.ts파일들을 찾아볼 수 있도록 설정되어 있다.   
+  
+  ```bash
+  npm run test:cov
+  ```
+  위와 같이 명령어를 입력하면 모든 .spec.ts 파일들을 찾아 해당 테스트파일과 매핑되는 파일들에 대한 테스팅 내역을 출력해준다.   
+  
+  ```bash
+  npm run test:watch
+  ```
+  `a`를 입력한다.
+- 모든 테스트 파일들을 찾아 관찰하게 된다.
+  
+
+### 유닛 테스트    
+  서비스에서 분리된 유닛을 테스트 하는 것을 말한다.
+  예를들어 Service를 테스트할때 Service에 존재하는 메소드 단위로 테스트한다.    
+
+### E2E 테스트
+  모든 시스템을 테스트 하는 것을 말한다.
+  사용자로부터 특정 요청이 들어왔을때 해당 요청에 대해 실행되는 컨트롤러, 서비스 등을 모두 테스트한다.   
+
+
+# Jest
+기본적으로 Jest는 .test.js 확장자 파일에 테스트 코드를 구현한다.    
+```js
+import { describe, it } from 'node:test';
+describe('example-test', () => {
+
+  it('should be 4', () => {
+    expect(2 + 2).toEqual(5);
+  });
+});
+```
+
+```bash
+npm test
+```
+
+### NestJS 
+nestJS에서는 앞서 위에서 설명했듯이 .test.js 확장자가 아닌 .spec.ts 확장자를 가진 파일에 테스트 코드를 작성해야 한다.   
+
+아래와 같은 명령어를 통해 JEST를 watch모드로 실행한다.
+```
+npm run test:watch
+```
+
+```js
+import { Test, TestingModule } from '@nestjs/testing';
+describe('MoviesService', () => {
+
+  it('should be 4', () => {
+    expect(2 + 2).toEqual(5);
+  });
+});
+```
+코드를 입력하고 저장 버튼을 클릭할 때 마다, 아래와 같은 결과를 출력한다.
+
+FAIL  src/movies/movies.service.spec.ts
+MoviesService
+√ should be defined (7 ms)                                                                                                                                                                          
+× should be 4 (4 ms)
+
+● MoviesService › should be 4
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: 5
+    Received: 4
+
+      24 |
+      25 |   it('should be 4', () => {
+    > 26 |     expect(2 + 2).toEqual(5);
+         |                   ^
+      27 |   });
+      28 | });
+      29 |
+
+      at Object.<anonymous> (movies/movies.service.spec.ts:26:19)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 passed, 2 total
+Snapshots:   0 total
+Time:        2.706 s, estimated 3 s
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
