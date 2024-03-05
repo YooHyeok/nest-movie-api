@@ -31,8 +31,6 @@ export class MoviesService {
     });
   }
   update(id: number, updateData: UpdateMovieDTO) {
-    console.log(id);
-    console.log(updateData);
     const movie = this.getOne(id); // 조회되는지 여부 파악 안되면 NotFoundException에러 발생됨
     this.deleteOne(id);
     this.movies.push({
