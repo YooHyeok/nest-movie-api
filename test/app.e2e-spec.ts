@@ -19,6 +19,32 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect('Welcome to my Movie API');
+  });
+
+  describe('/movies', () => {
+    it('GET', () => {
+      return request(app.getHttpServer())
+        .get('/movies')
+        .expect(200)
+        .expect([]); // 데이터가 비어있다.
+    });
+
+    it('POST', () => {
+      return request(app.getHttpServer())
+        .post('/movies')
+        .send({
+          title: 'Test',
+          year: 2000,
+          genres: ['test'],
+        })
+        .expect(201); // POST 성공시 201 코드 반환받는다.
+    });
+
+    it('DELETE', () => {
+      return request(app.getHttpServer())
+        .delete('/movies')
+        .expect(404); // 데이터가 없다
+    });
   });
 });
