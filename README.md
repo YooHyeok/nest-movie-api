@@ -599,7 +599,31 @@ Tests:       1 failed, 1 passed, 2 total
 Snapshots:   0 total
 Time:        2.706 s, estimated 3 s
 
+### e2e test
 
+예를들어 비밀번호를 생성하는 함수가 있다면, 그 안에는 암호화하는 function과 저장하는 function 두개가 존재할 수있다.   
+이 경우 유닛 단위 테스트를 지행하기 어려울 수 있다.   
+e2e 테스트는 관련된 애플리케이션의 모든 부분을 테스트한다.   
+`test/app.e2e-spec.ts`    
+test디렉토리의 app.e2e-spec.ts 라는 이름의 파일에서 테스트한다.    
+일반적인 단위테스트 파일과 다른점은 supertest라는 라이브러리 패키지로부터 request 객체를 import한다.    
+
+기본적으로 선언된 테스트코드는 아래와 같다.
+```ts
+it('/ (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/')
+      .expect(200)
+      .expect('Hello World!');
+  });
+```
+GET방식으로 / url에 API request를 보낸 뒤 200과 Hello World를 받아야 한다.    
+supertest 라이브러리의 request 객체를 사용한 테스트는 Spring의 Mock MVC 테스트와 얼핏 유사해보인다.    
+Controller, Service, Pipe의 결과에 대한 모든 테스트를 하고 있다.    
+
+```bash
+npm run test:e2e
+```
 
 
 
